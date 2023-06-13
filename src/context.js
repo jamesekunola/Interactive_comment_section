@@ -11,8 +11,6 @@ import {
 export const AppContext = createContext();
 
 const initialState = {
-  increaseLikes: true,
-  decreaseLikes: true,
   personComment: [],
 };
 
@@ -29,7 +27,7 @@ const Context = ({ children }) => {
       const response = await fetch("./data.json");
       const usersComments = await response.json();
 
-      // update person comment state with fetch data
+      // Process the fetched data and update the person's comment state
       dispatch({ type: SET_COMMENTS, payload: usersComments });
     };
 
@@ -45,25 +43,16 @@ const Context = ({ children }) => {
   };
 
   const handleSwitch = (actionType, id, type, index, liked, setIsLiked) => {
-    if (actionType === "increase" && !liked) {
-      dispatch({
-        type: TOGGLE_SCORE_SWITCH,
-        payload: { actionType, id, type, index, liked },
-      });
-
-      setIsLiked(!liked);
-      return;
-    }
-
-    if (actionType === "decrease" && liked) {
+    if (
+      (actionType === "increase" && !liked) ||
+      (actionType === "decrease" && liked)
+    ) {
       dispatch({
         type: TOGGLE_SCORE_SWITCH,
         payload: { actionType, id, type, index, liked },
       });
       setIsLiked(!liked);
-      return;
     }
-    return;
   };
 
   return (

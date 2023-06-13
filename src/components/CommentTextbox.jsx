@@ -2,7 +2,14 @@ import { useGlobalState } from "../context";
 import { useRef, useEffect } from "react";
 import { SUBMIT_REPLY } from "../action";
 
-const CommentTextbox = ({ user = "", text, type, id, index }) => {
+const CommentTextbox = ({
+  user = "",
+  text,
+  type,
+  id,
+  index,
+  setIsReplyBtnClicked,
+}) => {
   const userText = useRef(null);
   const replyingTo = user ? "@" + user + " " : "";
 
@@ -48,19 +55,22 @@ const CommentTextbox = ({ user = "", text, type, id, index }) => {
         },
       },
     ];
-    // set text back to empty string after user submit reply
+    // Set the text back to an empty string after the user has submitted their reply.
     userReply.value = replyingTo;
 
-    // update state
+    // Update the state and display all the comments that the user has made.
     dispatch({
       type: SUBMIT_REPLY,
       payload: { id, type, currentReply, index },
     });
+
+    // Close the reply text box after the user has submitted their comment.
+    setIsReplyBtnClicked(false);
   };
 
   return (
     <div className="comment__textbox__container">
-      {<img src={`${image.webp}`} alt="user" className="avatar" />}
+      <img src={`${image.webp}`} alt="user" className="avatar" />
 
       <textarea name="comment_reply" id="comment_box" ref={userText} />
 

@@ -18,12 +18,12 @@ export const reducer = (state, action) => {
     const { type, index, currentReply } = action.payload;
 
     if (type === "send") {
-      const comment = [...state.personComment.comments, ...currentReply];
-      const newComment = { ...state.personComment, comments: comment };
-
       return {
         ...state,
-        personComment: newComment,
+        personComment: {
+          ...state.personComment,
+          comments: [...state.personComment.comments, ...currentReply],
+        },
       };
     } else {
       return {
@@ -44,78 +44,79 @@ export const reducer = (state, action) => {
   }
 
   if (action.type === UPDATE) {
-    // console.log(action.payload);
     const { editedText, id, index, type } = action.payload;
 
     if (type === "comment") {
-      const comment = state.personComment.comments.find((comment) => {
-        return comment.id === id;
-      });
-
-      const updatedComment = { ...comment, content: editedText };
-      const editedComment = [...state.personComment.comments];
-      editedComment[index] = updatedComment;
-
-      const newLIst = { ...state.personComment, comments: editedComment };
+      const updatedComment = {
+        ...state.personComment.comments[index],
+        content: editedText,
+      };
+      const editedComments = [...state.personComment.comments];
+      editedComments[index] = updatedComment;
 
       return {
         ...state,
-        personComment: newLIst,
+        personComment: {
+          ...state.personComment,
+          comments: editedComments,
+        },
       };
     } else {
-      const replyMsgIndex = state.personComment.comments[
+      const commentIndex = state.personComment.comments[
         index
       ].replies.findIndex((comment) => comment.id === id);
-
-      const comment = state.personComment.comments[index].replies.find(
-        (comment) => comment.id === id
-      );
-
-      const updatedReplies = { ...comment, content: editedText };
-      const editedComment = [...state.personComment.comments];
-      editedComment[index].replies[replyMsgIndex] = updatedReplies;
-
-      const updatedEditedMsg = {
-        ...state.personComment,
-        comment: editedComment,
+      const updatedReply = {
+        ...state.personComment.comments[index].replies[commentIndex],
+        content: editedText,
       };
+      const editedReplies = [...state.personComment.comments[index].replies];
+      editedReplies[commentIndex] = updatedReply;
 
       return {
         ...state,
-        personComment: updatedEditedMsg,
+        personComment: {
+          ...state.personComment,
+          comments: state.personComment.comments.map((comment, i) =>
+            i === index
+              ? {
+                  ...comment,
+                  replies: editedReplies,
+                }
+              : comment
+          ),
+        },
       };
     }
   }
 
-  // delete comment
   if (action.type === DELETE) {
     const { type, id, index } = action.payload;
 
     if (type === "comment") {
-      const comment = [...state.personComment.comments].filter((itm) => {
-        return itm.id !== id;
-      });
-      const modifiedComment = { ...state.personComment, comments: comment };
+      const filteredComments = state.personComment.comments.filter(
+        (itm) => itm.id !== id
+      );
 
       return {
         ...state,
-        personComment: modifiedComment,
+        personComment: {
+          ...state.personComment,
+          comments: filteredComments,
+        },
       };
     } else {
-      const comment = [...state.personComment.comments];
-      const tempReplies = comment[index].replies;
-
-      const filteredReplyList = tempReplies.filter((reply) => reply.id !== id);
-      comment[index].replies = filteredReplyList;
-
-      const modifiedCommentList = {
-        ...state.personComment,
-        comments: comment,
-      };
+      const comments = [...state.personComment.comments];
+      const replies = comments[index].replies.filter(
+        (reply) => reply.id !== id
+      );
+      comments[index].replies = replies;
 
       return {
         ...state,
-        personComment: modifiedCommentList,
+        personComment: {
+          ...state.personComment,
+          comments: comments,
+        },
       };
     }
   }
@@ -123,82 +124,70 @@ export const reducer = (state, action) => {
   if (action.type === TOGGLE_SCORE_SWITCH) {
     const { id, actionType, type, index } = action.payload;
 
-    if (actionType === "increase" && type === "comment") {
-      return {
-        ...state,
-        personComment: {
-          ...state.personComment,
-          comments: [
-            ...state.personComment.comments.map((comment, i) =>
+    if (actionType === "increase") {
+      if (type === "comment") {
+        return {
+          ...state,
+          personComment: {
+            ...state.personComment,
+            comments: state.personComment.comments.map((comment, i) =>
               i === index ? { ...comment, score: comment.score + 1 } : comment
             ),
-          ],
-        },
-      };
-    }
-
-    if (actionType === "increase" && type === "replies") {
-      return {
-        ...state,
-        personComment: {
-          ...state.personComment,
-          comments: [
-            ...state.personComment.comments.map((comment, i) =>
+          },
+        };
+      } else {
+        return {
+          ...state,
+          personComment: {
+            ...state.personComment,
+            comments: state.personComment.comments.map((comment, i) =>
               i === index
                 ? {
                     ...comment,
-                    replies: [
-                      ...comment.replies.map((reply) =>
-                        reply.id === id
-                          ? { ...reply, score: reply.score + 1 }
-                          : reply
-                      ),
-                    ],
+                    replies: comment.replies.map((reply) =>
+                      reply.id === id
+                        ? { ...reply, score: reply.score + 1 }
+                        : reply
+                    ),
                   }
                 : comment
             ),
-          ],
-        },
-      };
+          },
+        };
+      }
     }
 
-    if (actionType === "decrease" && type === "comment") {
-      return {
-        ...state,
-        personComment: {
-          ...state.personComment,
-          comments: [
-            ...state.personComment.comments.map((comment, i) =>
+    if (actionType === "decrease") {
+      if (type === "comment") {
+        return {
+          ...state,
+          personComment: {
+            ...state.personComment,
+            comments: state.personComment.comments.map((comment, i) =>
               i === index ? { ...comment, score: comment.score - 1 } : comment
             ),
-          ],
-        },
-      };
-    }
-
-    if (actionType === "decrease" && type === "replies") {
-      return {
-        ...state,
-        personComment: {
-          ...state.personComment,
-          comments: [
-            ...state.personComment.comments.map((comment, i) =>
+          },
+        };
+      } else {
+        return {
+          ...state,
+          personComment: {
+            ...state.personComment,
+            comments: state.personComment.comments.map((comment, i) =>
               i === index
                 ? {
                     ...comment,
-                    replies: [
-                      ...comment.replies.map((reply) =>
-                        reply.id === id
-                          ? { ...reply, score: reply.score - 1 }
-                          : reply
-                      ),
-                    ],
+                    replies: comment.replies.map((reply) =>
+                      reply.id === id
+                        ? { ...reply, score: reply.score - 1 }
+                        : reply
+                    ),
                   }
                 : comment
             ),
-          ],
-        },
-      };
+          },
+        };
+      }
     }
 
     return state;
