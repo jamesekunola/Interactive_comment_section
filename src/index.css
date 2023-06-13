@@ -109,6 +109,15 @@ p {
   height: 2.5rem;
 }
 
+/* loading */
+.loading__container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--Grayish-Blue);
+}
+
 /* comments component */
 
 .comments {
@@ -399,4 +408,8 @@ textarea:focus {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;
+}
+
+.replying-username {
+  color: var(--Moderate-blue);
 }

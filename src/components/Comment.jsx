@@ -39,14 +39,14 @@ const Comment = ({
     }
   }, [edit, content]);
 
-  //   remember to refactor
   const hideReplyBoxOnOutsideEventClick = (event) => {
-    const selectedEvent = event.target.closest(".comment-reply__btn");
-    const replyBox = event.target.closest(".comment__textbox__container");
-    const editBox = event.target.closest(".comment_edit");
-    const editBtn = event.target.closest(".comment__edit");
+    const { target } = event;
+    const isReplyButton = target.closest(".comment-reply__btn");
+    const isReplyBox = target.closest(".comment__textbox__container");
+    const isEditBox = target.closest(".comment_edit");
+    const isEditButton = target.closest(".comment__edit");
 
-    if (!selectedEvent && !replyBox && !editBox && !editBtn) {
+    if (!isReplyButton && !isReplyBox && !isEditBox && !isEditButton) {
       setIsReplyBtnClicked(false);
       setEdit(false);
     }

@@ -6,7 +6,12 @@ import CommentTextbox from "./components/CommentTextbox";
 const App = () => {
   const { personComment } = useGlobalState();
 
-  if (personComment.length === 0) return <h2>Loading</h2>;
+  if (personComment.length === 0)
+    return (
+      <div className="loading__container">
+        <h2>Loading...</h2>
+      </div>
+    );
 
   const {
     comments,
